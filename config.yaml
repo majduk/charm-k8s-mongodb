@@ -1,0 +1,29 @@
+"options":
+  "advertised-hostname":
+    "description": "MongoDB Hostname"
+    "type": "string"
+    "default": "mongodb-k8s"
+  "advertised-port":
+    "description": "MongoDB port"
+    "type": "int"
+    "default": !!int "27017"
+  "replica-set":
+    "description": "Mongo Replica-set name"
+    "type": "string"
+    "default": "rs0"
+  "namespace":
+    "description": "Kubernetes namespace"
+    "type": "string"
+    "default": "osm"
+  "service-name":
+    "description": "Headless service name"
+    "type": "string"
+    "default": "mongodb-k8s-endpoints"
+  "cluster-domain":
+    "description": "Cluster domain"
+    "type": "string"
+    "default": "cluster.local"
+  "enable-sidecar":
+    "description": "Enable sidecar"
+    "type": "boolean"
+    "default": !!bool "false"

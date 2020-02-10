@@ -1,0 +1,28 @@
+"name": "mongodb-k8s"
+"summary": "MongoDB charm for Kubernetes."
+"maintainers":
+- "SolutionsQA <solutionsqa@lists.canonical.com>"
+"description": |
+  A CAAS charm to deploy MongoDB.
+"tags":
+- "application"
+"series":
+- "kubernetes"
+"provides":
+  "mongo":
+    "interface": "mongodb"
+"resources":
+  "mongodb-image":
+    "type": "oci-image"
+    "description": "Image used for MongoDB pod."
+    "auto-fetch": !!bool "true"
+    "upstream-source": "rocks.canonical.com:443/mongo:latest"
+  "mongodb-sidecar-image":
+    "type": "oci-image"
+    "description": "Image used for MongoDB Sidecar pod."
+    "auto-fetch": !!bool "true"
+    "upstream-source": "rocks.canonical.com:443/cvallance/mongo-k8s-sidecar:latest"
+"storage":
+  "database":
+    "type": "filesystem"
+    "location": "/data/db"
