@@ -4,7 +4,6 @@ import sys
 sys.path.append('lib')
 
 from ops.charm import CharmBase
-from ops.main import main
 from ops.framework import StoredState
 from ops.main import main
 from ops.model import (
@@ -15,6 +14,7 @@ from ops.model import (
 )
 
 from resources import OCIImageResource
+
 
 class MongoDbCharm(CharmBase):
     state = StoredState()
@@ -30,7 +30,7 @@ class MongoDbCharm(CharmBase):
 
     def make_pod_spec(self):
         """Make pod specification for Kubernetes
-    
+
         Returns:
             pod_spec: Pod specification for Kubernetes
         """
@@ -43,13 +43,13 @@ class MongoDbCharm(CharmBase):
                     'password': self.mongodb_image.password,
                 },
                 'ports': [{
-                    'containerPort': self.framework.model.config['advertised-port'],
+                    'containerPort':
+                    self.framework.model.config['advertised-port'],
                     'protocol': 'TCP',
                 }],
             }],
-        }        
+        }
         return spec
-
 
     def on_start(self, event):
         unit = self.framework.model.unit
