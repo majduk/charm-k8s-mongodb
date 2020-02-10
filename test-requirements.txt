@@ -1,0 +1,4 @@
+pyaml
+pytest
+pytest-cov
+flake8

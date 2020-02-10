@@ -12,7 +12,6 @@ from ops.model import (
     WaitingStatus,
     MaintenanceStatus,
 )
-
 from resources import OCIImageResource
 
 
@@ -26,7 +25,7 @@ class MongoDbCharm(CharmBase):
                       self.on.upgrade_charm,
                       self.on.config_changed):
             self.framework.observe(event, self.on_start)
-        self.mongodb_image = OCIImageResource(self, 'mongodb-image')
+        self.mongodb_image = OCIImageResource('mongodb-image')
 
     def make_pod_spec(self):
         """Make pod specification for Kubernetes
@@ -60,7 +59,6 @@ class MongoDbCharm(CharmBase):
             unit.status = WaitingStatus('Not leader')
             return
         spec = self.make_pod_spec()
-        print(spec)
         unit.status = MaintenanceStatus('Configuring container')
         self.framework.model.pod.set_spec(spec)
         self.state.is_started = True
