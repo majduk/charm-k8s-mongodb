@@ -37,22 +37,49 @@ class MongoDbCharm(CharmBase):
             'containers': [{
                 'name': self.framework.model.app.name,
                 'imageDetails': {
-                    'imagePath': self.mongodb_image.registry_path,
+                    'imagePath': self.mongodb_image.image_path,
                     'username': self.mongodb_image.username,
                     'password': self.mongodb_image.password,
                 },
+                'command': [
+                    'mongod',
+                    '--bind_ip',
+                    '0.0.0.0',
+                ],
                 'ports': [{
                     'containerPort':
                     self.framework.model.config['advertised-port'],
                     'protocol': 'TCP',
                 }],
-            }],
-        }
+                'config': {
+                    'ALLOW_ANONYMOUS_LOGIN': 'yes'
+                },                
+                'readinessProbe': {
+                  'tcpSocket':{
+                    'port': self.framework.model.config['advertised-port'],
+                    },
+                  'timeoutSeconds': 5,
+                  'periodSeconds': 5,
+                  'initialDelaySeconds': 10,
+                },
+                'livenessProbe': {
+                  'exec': { 
+                      'command':[
+                      '/bin/sh',
+                      '-c',
+                      'mongo --port %(advertised-port)s --eval "rs.status()" | grep -vq "REMOVED"',
+                      ]},
+                      'initialDelaySeconds': 45,
+                      'timeoutSeconds': 5,
+                  }
+                }] 
+            }
         return spec
 
     def on_start(self, event):
         unit = self.framework.model.unit
-        if not self.mongodb_image.fetch():
+        resources = self.framework.model.resources
+        if not self.mongodb_image.fetch(resources):
             unit.status = BlockedStatus('Missing or invalid image resource')
             return
         if not self.framework.model.unit.is_leader():
