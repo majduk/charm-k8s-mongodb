@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 
+
 class MongoBuilder:
 
     def __init__(self, app_name, config, images, units):
@@ -30,72 +31,76 @@ class MongoBuilder:
 
     def __make_container_spec__(self):
         return {
-                'name': self._app_name,
-                'imageDetails': {
-                    'imagePath': self._images['mongodb-image'].image_path,
-                    'username': self._images['mongodb-image'].username,
-                    'password': self._images['mongodb-image'].password,
-                },
-                'command': [
-                    'mongod',
-                    '--bind_ip',
-                    '0.0.0.0',
-                ],
-                'ports': [{
-                    'containerPort':
+            'name': self._app_name,
+            'imageDetails': {
+                'imagePath': self._images['mongodb-image'].image_path,
+                'username': self._images['mongodb-image'].username,
+                'password': self._images['mongodb-image'].password,
+            },
+            'command': [
+                'mongod',
+                '--bind_ip',
+                '0.0.0.0',
+            ],
+            'ports': [{
+                'containerPort':
                     self._config['advertised-port'],
                     'protocol': 'TCP',
-                }],
-                'config': {
-                    'ALLOW_ANONYMOUS_LOGIN': 'yes'
-                },
-                'readinessProbe': {
-                  'tcpSocket':{
+            }],
+            'config': {
+                'ALLOW_ANONYMOUS_LOGIN': 'yes'
+            },
+            'readinessProbe': {
+                'tcpSocket': {
                     'port': self._config['advertised-port'],
-                    },
-                  'timeoutSeconds': 5,
-                  'periodSeconds': 5,
-                  'initialDelaySeconds': 10,
                 },
-                'livenessProbe': {
-                  'exec': {
-                      'command':[
-                      '/bin/sh',
-                      '-c',
-                      'mongo --port ' + str(self._config['advertised-port']) + ' --eval "rs.status()" | grep -vq "REMOVED"',
-                      ]},
-                      'initialDelaySeconds': 45,
-                      'timeoutSeconds': 5,
-                  }
-                }
+                'timeoutSeconds': 5,
+                'periodSeconds': 5,
+                'initialDelaySeconds': 10,
+            },
+            'livenessProbe': {
+                'exec': {
+                    'command': [
+                        '/bin/sh',
+                        '-c',
+                        'mongo --port ' +
+                        str(self._config['advertised-port']) +
+                        ' --eval "rs.status()" | grep -vq "REMOVED"',
+                    ]},
+                'initialDelaySeconds': 45,
+                'timeoutSeconds': 5,
+            }
+        }
 
     def __make_sidecar_spec__(self):
         pod_labels = "juju-app={}".format(self._config['advertised-hostname'])
         return {
-                'name': 'mongodb-sidecar-k8s',
-                'imageDetails': {
-                    'imagePath': self._images['mongodb-sidecar-image'].image_path,
-                    'username': self._images['mongodb-sidecar-image'].username,
-                    'password': self._images['mongodb-sidecar-image'].password,
-                },
-                'config': {
-                     'KUBERNETES_MONGO_SERVICE_NAME': self._config['service-name'],
-                     'KUBE_NAMESPACE': self._config['namespace'],
-                     'MONGO_SIDECAR_POD_LABELS': pod_labels,
-                     'KUBERNETES_CLUSTER_DOMAIN': self._config['cluster-domain'],
-                },               
-               }
+            'name': 'mongodb-sidecar-k8s',
+            'imageDetails': {
+                    'imagePath':
+                    self._images['mongodb-sidecar-image'].image_path,
+                    'username':
+                    self._images['mongodb-sidecar-image'].username,
+                    'password':
+                    self._images['mongodb-sidecar-image'].password,
+            },
+            'config': {
+                'KUBERNETES_MONGO_SERVICE_NAME': self._config['service-name'],
+                'KUBE_NAMESPACE': self._config['namespace'],
+                'MONGO_SIDECAR_POD_LABELS': pod_labels,
+                'KUBERNETES_CLUSTER_DOMAIN': self._config['cluster-domain'],
+            },
+        }
 
-
-    def __make_pod_spec__(self, sidecar = False):
+    def __make_pod_spec__(self, sidecar=False):
         """Make pod specification for Kubernetes
 
         Returns:
             pod_spec: Pod specification for Kubernetes
         """
         spec = {
-            'containers': [ self.__make_container_spec__() ] 
-            }
+            'containers': [self.__make_container_spec__()]
+        }
         if sidecar:
-            spec['containers'].append( self.__make_sidecar_spec__() )
-        return spec    
+            spec['containers'].append(self.__make_sidecar_spec__())
+        return spec

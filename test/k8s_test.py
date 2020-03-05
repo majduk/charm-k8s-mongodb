@@ -28,7 +28,7 @@ class K8sApiTest(unittest.TestCase):
             mock_ssl_context_cls,
             mock_open):
         # Setup
-        mock_response_dict = {str(uuid4()):str(uuid4())}
+        mock_response_dict = {str(uuid4()): str(uuid4())}
         mock_response_json = io.StringIO(json.dumps(mock_response_dict))
         mock_conn = mock_https_connection_cls.return_value
         mock_conn.getresponse.return_value = mock_response_json
@@ -39,6 +39,7 @@ class K8sApiTest(unittest.TestCase):
 
         # Assert
         assert response == mock_response_dict
+
 
 class K8sPodTest(unittest.TestCase):
 
@@ -82,7 +83,8 @@ class K8sPodTest(unittest.TestCase):
         # Assert
         assert mock_k8s_api.get.call_count == 1
         assert mock_k8s_api.get.call_args == call(
-            '/api/v1/namespaces/{}/pods?labelSelector=juju-app={}'.format(mock_model_name,app_name)
+            '/api/v1/namespaces/{}/pods?labelSelector=juju-app={}'
+            .format(mock_model_name, app_name)
         )
         assert pod.is_running
         assert pod.is_ready
@@ -113,10 +115,11 @@ class K8sPodTest(unittest.TestCase):
         # Assert
         assert mock_k8s_api.get.call_count == 1
         assert mock_k8s_api.get.call_args == call(
-            '/api/v1/namespaces/{}/pods?labelSelector=juju-app={}'.format(mock_model_name,app_name)
+            '/api/v1/namespaces/{}/pods?labelSelector=juju-app={}'
+            .format(mock_model_name, app_name)
         )
         assert not pod.is_running
-        assert not pod.is_ready        
+        assert not pod.is_ready
 
     @patch('k8s.os', autospec=True, spec_set=True)
     @patch('k8s.K8sApi', autospec=True, spec_set=True)
@@ -158,7 +161,8 @@ class K8sPodTest(unittest.TestCase):
         # Assert
         assert mock_k8s_api.get.call_count == 1
         assert mock_k8s_api.get.call_args == call(
-            '/api/v1/namespaces/{}/pods?labelSelector=juju-app={}'.format(mock_model_name,app_name)
+            '/api/v1/namespaces/{}/pods?labelSelector=juju-app={}'
+            .format(mock_model_name, app_name)
         )
         assert not pod.is_running
-        assert not pod.is_ready         
+        assert not pod.is_ready

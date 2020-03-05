@@ -20,6 +20,7 @@ import logging
 
 logger = logging.getLogger()
 
+
 class MongoDbCharm(CharmBase):
     _state = StoredState()
 
@@ -38,7 +39,8 @@ class MongoDbCharm(CharmBase):
         )
 
         if self._framework_wrapper.config['enable-sidecar']:
-            self._resources['mongodb-sidecar-image'] = OCIImageResource('mongodb-sidecar-image')
+            self._resources['mongodb-sidecar-image'] = OCIImageResource(
+                'mongodb-sidecar-image')
 
         self._pod = K8sPod(self._framework_wrapper.app_name)
 
@@ -47,10 +49,14 @@ class MongoDbCharm(CharmBase):
             (self.on.upgrade_charm, self.on_config_changed_delegator),
             (self.on.config_changed, self.on_config_changed_delegator),
             (self.on.update_status, self.on_update_status_delegator),
-            (self.on.mongo_relation_joined, self.on_relation_changed_delegator),
-            (self.on.mongo_relation_changed, self.on_relation_changed_delegator),
-            (self.on.mongo_relation_departed, self.on_relation_changed_delegator),
-            (self.on.mongo_relation_broken, self.on_relation_changed_delegator),         
+            (self.on.mongo_relation_joined,
+             self.on_relation_changed_delegator),
+            (self.on.mongo_relation_changed,
+             self.on_relation_changed_delegator),
+            (self.on.mongo_relation_departed,
+             self.on_relation_changed_delegator),
+            (self.on.mongo_relation_broken,
+             self.on_relation_changed_delegator),
         ]
         for delegator in delegators:
             self.framework.observe(delegator[0], delegator[1])
@@ -58,26 +64,27 @@ class MongoDbCharm(CharmBase):
     def on_config_changed_delegator(self, event):
         logger.info('on_config_changed_delegator({})'.format(event))
         return ConfigChangeObserver(
-                self._framework_wrapper, 
-                self._resources, 
-                self._pod,
-                self._mongo_builder).handle(event)
+            self._framework_wrapper,
+            self._resources,
+            self._pod,
+            self._mongo_builder).handle(event)
 
     def on_relation_changed_delegator(self, event):
         logger.info('on_relation_changed_delegator({})'.format(event))
         return RelationObserver(
-                self._framework_wrapper, 
-                self._resources, 
-                self._pod,
-                self._mongo_builder).handle(event)
+            self._framework_wrapper,
+            self._resources,
+            self._pod,
+            self._mongo_builder).handle(event)
 
     def on_update_status_delegator(self, event):
         logger.info('on_update_status_delegator({})'.format(event))
         return StatusObserver(
-                self._framework_wrapper, 
-                self._resources, 
-                self._pod,
-                self._mongo_builder).handle(event)
+            self._framework_wrapper,
+            self._resources,
+            self._pod,
+            self._mongo_builder).handle(event)
+
 
 if __name__ == "__main__":
     main(MongoDbCharm)

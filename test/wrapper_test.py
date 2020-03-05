@@ -9,7 +9,6 @@ from unittest.mock import (
     call,
     patch,
     create_autospec,
-    Mock,
     MagicMock,
 )
 sys.path.append('lib')
@@ -30,6 +29,7 @@ from ops.charm import (
 
 from wrapper import FrameworkWrapper
 
+
 class FrameworkWrapperTest(unittest.TestCase):
 
     def setUp(self):
@@ -45,9 +45,10 @@ class FrameworkWrapperTest(unittest.TestCase):
         model.pod = create_autospec(Pod)
         model.config = create_autospec(ConfigData)
         raw_meta = {
-            'provides': {'mongo': { "interface": "mongodb" }}
+            'provides': {'mongo': {"interface": "mongodb"}}
         }
-        framework = Framework(self.tmpdir / "framework.data.{}".format(str(uuid4)),
+        framework = Framework(self.tmpdir / "framework.data.{}"
+                              .format(str(uuid4)),
                               self.tmpdir, CharmMeta(raw=raw_meta), model)
 
         framework.model.app.name = "test-app"
@@ -57,55 +58,56 @@ class FrameworkWrapperTest(unittest.TestCase):
 
     def test_config(self):
         # Setup
-        mock_data = {'key':f'{uuid4()}'}
+        mock_data = {'key': f'{uuid4()}'}
         self.mock_framework.model.config = MagicMock(return_value=mock_data)
         # Exercise
-        wrapper  = FrameworkWrapper(self.mock_framework, None)
+        wrapper = FrameworkWrapper(self.mock_framework, None)
         config = wrapper.config()
         # Assert
         assert config == mock_data
 
     def test_state(self):
         # Setup
-        mock_state = {'key':f'{uuid4()}'}
+        mock_state = {'key': f'{uuid4()}'}
         # Exercise
-        wrapper  = FrameworkWrapper(self.mock_framework, mock_state)
+        wrapper = FrameworkWrapper(self.mock_framework, mock_state)
         config = wrapper.state
         # Assert
         assert config == mock_state
 
     def test_resources(self):
         # Setup
-        mock_data = {'key':f'{uuid4()}'}
+        mock_data = {'key': f'{uuid4()}'}
         self.mock_framework.model.resources = MagicMock(return_value=mock_data)
         # Exercise
-        wrapper  = FrameworkWrapper(self.mock_framework, None)
+        wrapper = FrameworkWrapper(self.mock_framework, None)
         config = wrapper.resources()
         # Assert
         assert config == mock_data
 
     def test_app_name(self):
         # Exercise
-        wrapper  = FrameworkWrapper(self.mock_framework, None)
+        wrapper = FrameworkWrapper(self.mock_framework, None)
         config = wrapper.app_name
         # Assert
         assert config == "test-app"
 
     def test_pod_spec_set(self):
         # Setup
-        mock_data = {'key':f'{uuid4()}'}
+        mock_data = {'key': f'{uuid4()}'}
         # Exercise
-        wrapper  = FrameworkWrapper(self.mock_framework, None)
+        wrapper = FrameworkWrapper(self.mock_framework, None)
         wrapper.pod_spec_set(mock_data)
         # Assert
         assert self.mock_framework.model.pod.set_spec.call_count == 1
-        assert self.mock_framework.model.pod.set_spec.call_args == call(mock_data)
+        assert self.mock_framework.model.pod.set_spec.call_args ==\
+            call(mock_data)
 
     def test_status_set(self):
         # Setup
-        mock_data = {'key':f'{uuid4()}'}
+        mock_data = {'key': f'{uuid4()}'}
         # Exercise
-        wrapper  = FrameworkWrapper(self.mock_framework, None)
+        wrapper = FrameworkWrapper(self.mock_framework, None)
         wrapper.unit_status_set(mock_data)
         # Assert
         assert self.mock_framework.model.unit.status == mock_data
@@ -113,23 +115,26 @@ class FrameworkWrapperTest(unittest.TestCase):
     @patch('subprocess.check_output')
     def test_goal_state_units(self, mock_subproc):
         # Setup
-        mock_data = {"units":{
-            "mongodb-k8s/0":{"status":"active","since":"2020-03-05 10:53:51Z"},
-            "mongodb-k8s/1":{"status":"active","since":"2020-03-05 10:55:30Z"},
-            "mongodb-k8s/2":{"status":"active","since":"2020-03-05 10:55:23Z"}},
-            "relations":{}}
+        mock_data = {"units": {
+            "mongodb-k8s/0": {"status": "active",
+                              "since": "2020-03-05 10:53:51Z"},
+            "mongodb-k8s/1": {"status": "active",
+                              "since": "2020-03-05 10:55:30Z"},
+            "mongodb-k8s/2": {"status": "active",
+                              "since": "2020-03-05 10:55:23Z"}},
+                     "relations": {}}
         mock_output = MagicMock()
         mock_output.decode.return_value = json.dumps(mock_data)
         mock_subproc.return_value = mock_output
         # Exercise
-        wrapper  = FrameworkWrapper(self.mock_framework, None)
+        wrapper = FrameworkWrapper(self.mock_framework, None)
         config = wrapper.goal_state_units
         # Assert
         assert config == mock_data['units']
 
     def test_unit_is_leader(self):
         # Exercise
-        wrapper  = FrameworkWrapper(self.mock_framework, None)
+        wrapper = FrameworkWrapper(self.mock_framework, None)
         config = wrapper.unit_is_leader
         # Assert
-        assert config == False     
+        assert config is False

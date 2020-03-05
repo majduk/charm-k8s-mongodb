@@ -4,7 +4,6 @@ import shutil
 import unittest
 import tempfile
 from unittest.mock import (
-    call,
     patch,
     create_autospec,
     Mock,
@@ -22,9 +21,6 @@ from ops.model import (
     Pod,
     ConfigData,
     Application,
-    ActiveStatus,
-    BlockedStatus,
-    WaitingStatus,
 )
 
 from ops.charm import (
@@ -41,6 +37,7 @@ from charm import (
 
 from wrapper import FrameworkWrapper
 
+
 class CharmTest(unittest.TestCase):
 
     def setUp(self):
@@ -56,9 +53,10 @@ class CharmTest(unittest.TestCase):
         model.pod = create_autospec(Pod)
         model.config = create_autospec(ConfigData)
         raw_meta = {
-            'provides': {'mongo': { "interface": "mongodb" }}
+            'provides': {'mongo': {"interface": "mongodb"}}
         }
-        framework = Framework(self.tmpdir / "framework.data.{}".format(str(uuid4)),
+        framework = Framework(self.tmpdir / "framework.data.{}"
+                              .format(str(uuid4)),
                               self.tmpdir, CharmMeta(raw=raw_meta), model)
 
         framework.model.app.name = "test-app"
@@ -67,7 +65,8 @@ class CharmTest(unittest.TestCase):
         return framework
 
     @patch('charm.StatusObserver', spec_set=True, autospec=True)
-    @patch.object(FrameworkWrapper, 'goal_state_units', MagicMock(return_value={}))
+    @patch.object(FrameworkWrapper, 'goal_state_units',
+                  MagicMock(return_value={}))
     @patch.object(FrameworkWrapper, 'config', MagicMock(return_value={}))
     def test_on_relation(self, mock_observer_clazz):
         # setup test
@@ -77,6 +76,6 @@ class CharmTest(unittest.TestCase):
         # run code
         charm_obj = MongoDbCharm(self.mock_framework, None)
         charm_obj.on_update_status_delegator(mock_event)
-        
+
         # check assertions
-        assert mock_observer.handle.call_count == 1    
+        assert mock_observer.handle.call_count == 1

@@ -5,6 +5,7 @@ import logging
 
 logger = logging.getLogger()
 
+
 class FrameworkWrapper:
 
     def __init__(self, framework, state):
@@ -26,7 +27,7 @@ class FrameworkWrapper:
     @property
     def app_name(self):
         return self._framework.model.app.name
-    
+
     def pod_spec_set(self, spec):
         logger.info('pod_spec_set {}'.format(str(spec)))
         self._framework.model.pod.set_spec(spec)
@@ -46,6 +47,5 @@ class FrameworkWrapper:
     @property
     def goal_state_units(self):
         cmd = ['goal-state', '--format=json']
-        goal_state =  json.loads(subprocess.check_output(cmd).decode('UTF-8'))
+        goal_state = json.loads(subprocess.check_output(cmd).decode('UTF-8'))
         return goal_state['units']
-

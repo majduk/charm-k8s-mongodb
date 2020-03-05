@@ -1,4 +1,3 @@
-from pathlib import Path
 import sys
 import unittest
 from unittest.mock import (
@@ -9,7 +8,7 @@ sys.path.append('src')
 
 from uuid import uuid4
 from builders import MongoBuilder
-from resources import OCIImageResource
+
 
 class MongoBuilderTest(unittest.TestCase):
 
@@ -49,7 +48,7 @@ class MongoBuilderTest(unittest.TestCase):
         )
         spec = builder.build_spec()
         # Verify
-        assert spec == {'containers':[
+        assert spec == {'containers': [
             {
                 'name': app_name,
                 'imageDetails': {
@@ -71,34 +70,34 @@ class MongoBuilderTest(unittest.TestCase):
                     'ALLOW_ANONYMOUS_LOGIN': 'yes'
                 },
                 'readinessProbe': {
-                  'tcpSocket':{
-                    'port': config['advertised-port'],
+                    'tcpSocket': {
+                        'port': config['advertised-port'],
                     },
-                  'timeoutSeconds': 5,
-                  'periodSeconds': 5,
-                  'initialDelaySeconds': 10,
+                    'timeoutSeconds': 5,
+                    'periodSeconds': 5,
+                    'initialDelaySeconds': 10,
                 },
                 'livenessProbe': {
-                  'exec': {
-                      'command':[
-                      '/bin/sh',
-                      '-c',
-                      'mongo --port ' + str(config['advertised-port']) + 
-                      ' --eval "rs.status()" | grep -vq "REMOVED"',
-                      ]},
-                      'initialDelaySeconds': 45,
-                      'timeoutSeconds': 5,
-                  }
+                    'exec': {
+                        'command': [
+                            '/bin/sh',
+                            '-c',
+                            'mongo --port ' + str(config['advertised-port'])
+                            + ' --eval "rs.status()" | grep -vq "REMOVED"',
+                        ]},
+                    'initialDelaySeconds': 45,
+                    'timeoutSeconds': 5,
                 }
-            ]}
+            }
+        ]}
 
     @patch('charm.OCIImageResource', autospec=True, spec_set=True)
-    def test_spec_sidecar(self,mock_image_resource_clazz):
+    def test_spec_sidecar(self, mock_image_resource_clazz):
         # Setup
         mock_image_resource_obj =\
             self.create_image_resource_obj(mock_image_resource_clazz, True)
         mock_image_resource_obj2 =\
-            self.create_image_resource_obj(mock_image_resource_clazz, True)            
+            self.create_image_resource_obj(mock_image_resource_clazz, True)
         app_name = 'app-name'
         config = {
             'enable-sidecar': True,
@@ -124,7 +123,7 @@ class MongoBuilderTest(unittest.TestCase):
         )
         spec = builder.build_spec()
         # Verify
-        assert spec == {'containers':[
+        assert spec == {'containers': [
             {
                 'name': app_name,
                 'imageDetails': {
@@ -146,26 +145,26 @@ class MongoBuilderTest(unittest.TestCase):
                     'ALLOW_ANONYMOUS_LOGIN': 'yes'
                 },
                 'readinessProbe': {
-                  'tcpSocket':{
-                    'port': config['advertised-port'],
+                    'tcpSocket': {
+                        'port': config['advertised-port'],
                     },
-                  'timeoutSeconds': 5,
-                  'periodSeconds': 5,
-                  'initialDelaySeconds': 10,
+                    'timeoutSeconds': 5,
+                    'periodSeconds': 5,
+                    'initialDelaySeconds': 10,
                 },
                 'livenessProbe': {
-                  'exec': {
-                      'command':[
-                      '/bin/sh',
-                      '-c',
-                      'mongo --port ' + str(config['advertised-port']) + 
-                      ' --eval "rs.status()" | grep -vq "REMOVED"',
-                      ]},
-                      'initialDelaySeconds': 45,
-                      'timeoutSeconds': 5,
-                  }
-                },
-                {
+                    'exec': {
+                        'command': [
+                            '/bin/sh',
+                            '-c',
+                            'mongo --port ' + str(config['advertised-port'])
+                            + ' --eval "rs.status()" | grep -vq "REMOVED"',
+                        ]},
+                    'initialDelaySeconds': 45,
+                    'timeoutSeconds': 5,
+                }
+            },
+            {
                 'name': 'mongodb-sidecar-k8s',
                 'imageDetails': {
                     'imagePath': mock_image_resource_obj2.image_path,
@@ -173,13 +172,13 @@ class MongoBuilderTest(unittest.TestCase):
                     'password': mock_image_resource_obj2.password,
                 },
                 'config': {
-                     'KUBERNETES_MONGO_SERVICE_NAME': config['service-name'],
-                     'KUBE_NAMESPACE': config['namespace'],
-                     'MONGO_SIDECAR_POD_LABELS': pod_labels,
-                     'KUBERNETES_CLUSTER_DOMAIN': config['cluster-domain'],
-                },               
-               }                
-            ]}                    
+                    'KUBERNETES_MONGO_SERVICE_NAME': config['service-name'],
+                    'KUBE_NAMESPACE': config['namespace'],
+                    'MONGO_SIDECAR_POD_LABELS': pod_labels,
+                    'KUBERNETES_CLUSTER_DOMAIN': config['cluster-domain'],
+                },
+            }
+        ]}
 
     def test_relation_data(self):
         app_name = 'app-name'
@@ -193,11 +192,14 @@ class MongoBuilderTest(unittest.TestCase):
             'cluster-domain': 'cluster-domain'
         }
 
-        goal_state = {"units":{
-            "mongodb-k8s/0":{"status":"active","since":"2020-03-05 10:53:51Z"},
-            "mongodb-k8s/1":{"status":"active","since":"2020-03-05 10:55:30Z"},
-            "mongodb-k8s/2":{"status":"active","since":"2020-03-05 10:55:23Z"}},
-            "relations":{}}
+        goal_state = {"units": {
+            "mongodb-k8s/0": {"status": "active",
+                              "since": "2020-03-05 10:53:51Z"},
+            "mongodb-k8s/1": {"status": "active",
+                              "since": "2020-03-05 10:55:30Z"},
+            "mongodb-k8s/2": {"status": "active",
+                              "since": "2020-03-05 10:55:23Z"}},
+                      "relations": {}}
         images = {}
         # Exercise
         builder = MongoBuilder(
@@ -212,4 +214,4 @@ class MongoBuilderTest(unittest.TestCase):
                         'mongodb-k8s-0.service-name:1234,'
                         'mongodb-k8s-1.service-name:1234,'
                         'mongodb-k8s-2.service-name:1234'
-                        '/?replicaSet=replica-set'}                          
+                        '/?replicaSet=replica-set'}

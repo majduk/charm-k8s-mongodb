@@ -4,6 +4,7 @@ import http.client
 import os
 import ssl
 
+
 class K8sApi:
 
     def get(self, path):
@@ -22,27 +23,29 @@ class K8sApi:
             'Authorization': f'Bearer {kube_token}'
         }
 
-        conn = http.client.HTTPSConnection('kubernetes.default.svc',                                     
-                                           context=ssl_context)                                          
-        conn.request(method=method, url=path, headers=headers)                                           
-                                                                                                         
-        return json.loads(conn.getresponse().read())        
+        conn = http.client.HTTPSConnection('kubernetes.default.svc',
+                                           context=ssl_context)
+        conn.request(method=method, url=path, headers=headers)
+
+        return json.loads(conn.getresponse().read())
+
 
 class K8sPod:
-    
+
     def __init__(self, app_name):
         self._app_name = app_name
         self._status = None
 
-    def fetch(self):                                                                                     
-        namespace = os.environ["JUJU_MODEL_NAME"]                                                        
-                                                                                                         
-        path = f'/api/v1/namespaces/{namespace}/pods?labelSelector=juju-app={self._app_name}'                                                
-                                                                                                         
-        api_server = K8sApi()                                                                         
-        response = api_server.get(path)                                                                  
-                                                                                                         
-        if response.get('kind', '') == 'PodList' and response['items']:                                  
+    def fetch(self):
+        namespace = os.environ["JUJU_MODEL_NAME"]
+
+        path = f'/api/v1/namespaces/{namespace}/pods?'\
+               f'labelSelector=juju-app={self._app_name}'
+
+        api_server = K8sApi()
+        response = api_server.get(path)
+
+        if response.get('kind', '') == 'PodList' and response['items']:
             unit = os.environ['JUJU_UNIT_NAME']
             status = next(
                 (i for i in response['items']
@@ -57,9 +60,9 @@ class K8sPod:
     @property
     def is_ready(self):
         if not self._status:
-           self.fetch()   
+            self.fetch()
         if not self._status:
-            return False                   
+            return False
         return next(
             (
                 condition['status'] == "True" for condition
@@ -74,5 +77,5 @@ class K8sPod:
         if not self._status:
             self.fetch()
         if not self._status:
-            return False        
-        return self._status['status']['phase'] == 'Running' 
+            return False
+        return self._status['status']['phase'] == 'Running'
