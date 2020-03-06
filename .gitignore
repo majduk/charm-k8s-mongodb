@@ -1,3 +1,4 @@
+.vscode/
 .tox
 *.egg-info
 **/__pycache__
