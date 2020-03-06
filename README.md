@@ -9,7 +9,7 @@ Click on each badge for more details.
 
 | Branch | Build Status | Coverage |
 |--------|--------------|----------|
-| master | [![Build Status (master)](https://travis-ci.org/majduk/charm-k8s-mongodb.svg?branch=master)](https://travis-ci.org/majduk/charm-k8s-mongodb.svg?branch=master) | [![Coverage Status](https://coveralls.io/repos/github/majduk/charm-k8s-mongodb/badge.svg?branch=master)](https://coveralls.io/github/majduk/charm-k8s-mongodb?branch=master) |
+| master | [![Build Status (master)](https://travis-ci.org/majduk/charm-k8s-mongodb.svg?branch=master)](https://travis-ci.org/majduk/charm-k8s-mongodb.svg?branch=master) | [![Coverage Status](https://coveralls.io/repos/github/majduk/charm-k8s-mongodb/badge.svg)](https://coveralls.io/github/majduk/charm-k8s-mongodb) |
 
 
 Overview
