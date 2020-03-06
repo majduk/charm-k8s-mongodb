@@ -1,7 +1,8 @@
 import sys
 import unittest
 from unittest.mock import (
-    patch
+    patch,
+    MagicMock,
 )
 sys.path.append('lib')
 sys.path.append('src')
@@ -201,6 +202,9 @@ class MongoBuilderTest(unittest.TestCase):
                               "since": "2020-03-05 10:55:23Z"}},
                       "relations": {}}
         images = {}
+        mock_formatter = MagicMock()
+        mock_formatter.format = MagicMock(
+            side_effect=(lambda x: {'connection_string': x}))
         # Exercise
         builder = MongoBuilder(
             app_name,
@@ -208,7 +212,7 @@ class MongoBuilderTest(unittest.TestCase):
             images,
             goal_state['units']
         )
-        spec = builder.build_relation_data()
+        spec = builder.build_relation_data(mock_formatter)
         # Verify
         assert spec == {'connection_string': 'mongodb://'
                         'mongodb-k8s-0.service-name:1234,'

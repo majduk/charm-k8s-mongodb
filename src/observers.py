@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 
 from abc import abstractmethod
-import re
 import sys
 sys.path.append('lib')
 from ops.model import (
@@ -36,9 +35,13 @@ class ConfigChangeObserver(BaseObserver):
                 self._framework.unit_status_set(
                     BlockedStatus('Missing or invalid image resource: {}'
                                   .format(resource)))
+                logger.info('Missing or invalid image resource: {}'
+                            .format(resource))
                 return
+
         if not self._framework.unit_is_leader:
             self._framework.unit_status_set(WaitingStatus('Not the leader'))
+            logger.info('Delegating pod configuration to the leader')
             return
 
         spec = self._builder.build_spec()
@@ -47,25 +50,17 @@ class ConfigChangeObserver(BaseObserver):
         self._framework.pod_spec_set(spec)
         if self._pod.is_ready:
             self._framework.unit_status_set(ActiveStatus('ready'))
+            logger.info('Pod is ready')
             return
         self._framework.unit_status_set(MaintenanceStatus('Pod is not ready'))
+        logger.info('Pod is not ready')
 
 
 class RelationObserver(BaseObserver):
 
     def handle(self, event):
-        handler_name = "handle_" + \
-            re.sub(r'(?<!^)(?=[A-Z])', '_',
-                       event.__class__.__name__).lower()
-        try:
-            handler = self.__getattribute__(handler_name)
-        except AttributeError:
-            print("Handler {} undefined, ignoring".format(handler_name))
-            return
-        handler(event)
-
-    def handle_relation_joined_event(self, event):
-        data = self._builder.build_relation_data()
+        data = self._builder.build_relation_data(event.formatter)
+        logger.info('Serve {} with {}'.format(event.client, data))
         self._framework.relation_data_set(event.relation, data)
 
 
@@ -73,6 +68,8 @@ class StatusObserver(BaseObserver):
 
     def handle(self, event):
         if self._pod.is_ready:
+            logger.info('Pod is ready')
             self._framework.unit_status_set(ActiveStatus())
             return
         self._framework.unit_status_set(BlockedStatus('Pod is not ready'))
+        logger.info('Pod is not ready')

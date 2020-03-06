@@ -4,7 +4,8 @@ from uuid import uuid4
 from unittest.mock import (
     call,
     patch,
-    create_autospec
+    create_autospec,
+    Mock
 )
 sys.path.append('lib')
 sys.path.append('src')
@@ -129,6 +130,8 @@ class RelationObserverTest(unittest.TestCase):
 
         relation = uuid4()
         mock_event.relation = relation
+        mock_event.formatter = Mock()
+        mock_event.client = uuid4()
         rel_data = {str(uuid4()): str(uuid4())}
         mock_builder.build_relation_data.return_value = rel_data
 

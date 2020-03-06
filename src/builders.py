@@ -12,8 +12,8 @@ class MongoBuilder:
     def build_spec(self):
         return self.__make_pod_spec__(self._config['enable-sidecar'])
 
-    def build_relation_data(self):
-        return {'connection_string': self.__make_mongodb_uri__()}
+    def build_relation_data(self, formatter):
+        return formatter.format(self.__make_mongodb_uri__())
 
     def __make_mongodb_uri__(self):
         mongo_uri = "mongodb://"
