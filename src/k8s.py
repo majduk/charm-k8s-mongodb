@@ -3,6 +3,9 @@ import json
 import http.client
 import os
 import ssl
+import logging
+
+logger = logging.getLogger()
 
 
 class K8sApi:
@@ -26,8 +29,10 @@ class K8sApi:
         conn = http.client.HTTPSConnection('kubernetes.default.svc',
                                            context=ssl_context)
         conn.request(method=method, url=path, headers=headers)
+        raw_response = conn.getresponse().read()
+        logger.info("Conn.getresponse: {}".format(raw_response))
 
-        return json.loads(conn.getresponse().read())
+        return json.loads(raw_response)
 
 
 class K8sPod:
@@ -44,6 +49,7 @@ class K8sPod:
 
         api_server = K8sApi()
         response = api_server.get(path)
+        logger.info("K8sApiServer response: {}".format(response))
 
         if response.get('kind', '') == 'PodList' and response['items']:
             unit = os.environ['JUJU_UNIT_NAME']
@@ -55,6 +61,7 @@ class K8sPod:
         else:
             status = None
 
+        logger.info("K8sPod status: {}".format(status))
         self._status = status
 
     @property
