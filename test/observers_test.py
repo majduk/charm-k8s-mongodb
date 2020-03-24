@@ -130,8 +130,8 @@ class RelationObserverTest(unittest.TestCase):
 
         relation = uuid4()
         mock_event.relation = relation
-        mock_event.formatter = Mock()
-        mock_event.client = uuid4()
+        mock_event.client = Mock()
+        mock_event.client.formatter = Mock()
         rel_data = {str(uuid4()): str(uuid4())}
         mock_builder.build_relation_data.return_value = rel_data
 

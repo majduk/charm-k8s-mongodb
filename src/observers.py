@@ -59,7 +59,7 @@ class ConfigChangeObserver(BaseObserver):
 class RelationObserver(BaseObserver):
 
     def handle(self, event):
-        data = self._builder.build_relation_data(event.formatter)
+        data = self._builder.build_relation_data(event.client.formatter)
         logger.info('Serve {} with {}'.format(event.client, data))
         self._framework.relation_data_set(event.relation, data)
 
