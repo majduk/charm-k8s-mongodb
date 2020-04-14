@@ -40,7 +40,7 @@ class ConfigChangeObserver(BaseObserver):
                 return
 
         if not self._framework.unit_is_leader:
-            self._framework.unit_status_set(WaitingStatus('Not the leader'))
+            self._framework.unit_status_set(WaitingStatus('Waiting for leader'))
             logger.info('Delegating pod configuration to the leader')
             return
 
