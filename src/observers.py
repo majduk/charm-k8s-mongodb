@@ -40,7 +40,8 @@ class ConfigChangeObserver(BaseObserver):
                 return
 
         if not self._framework.unit_is_leader:
-            self._framework.unit_status_set(WaitingStatus('Waiting for leader'))
+            self._framework.unit_status_set(
+                WaitingStatus('Waiting for leader'))
             logger.info('Delegating pod configuration to the leader')
             return
 
@@ -54,6 +55,19 @@ class ConfigChangeObserver(BaseObserver):
             return
         self._framework.unit_status_set(MaintenanceStatus('Pod is not ready'))
         logger.info('Pod is not ready')
+
+
+class RemovalObserver(BaseObserver):
+
+    def __init__(self, framework, resources, pod, pvc, builder):
+        super().__init__(framework, resources, pod, builder)
+        self._pvc = pvc
+
+    def handle(self, event):
+        if not self._pod.is_ready:
+            logger.info('Pod deleted, removing remains')
+        self._builder.demolish()
+        logger.info('Pvc cleaned up')
 
 
 class RelationObserver(BaseObserver):
