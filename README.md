@@ -1,5 +1,5 @@
 
-Juju Charm for Mon on Kubernetes
+Juju Charm for MongoDB on Kubernetes
 ==================================
 
 CI Badges
@@ -15,7 +15,7 @@ Click on each badge for more details.
 Overview
 ---------
 
-Mongo for Juju CAAS
+MongoDB for Juju CAAS
 
 Usage
 ---------
@@ -61,8 +61,12 @@ For more information on connection to MongoDB see https://docs.mongodb.com/manua
 
 Architecture
 ---------
-No-HA scenario architecture owerview:
+No-HA scenario architecture overview:
+
+![No-HA](img/No-HA.png)
 
 HA-scanario architecture overview:
+
+![HA](img/HA.png)
 
 
