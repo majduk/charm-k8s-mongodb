@@ -9,15 +9,14 @@ from ops.main import main
 
 from resources import OCIImageResource
 from wrapper import FrameworkWrapper
-from k8s import K8sPod, K8sPvc
+from k8s import K8sPod
 from observers import (
     ConfigChangeObserver,
-    RemovalObserver,
     StatusObserver,
     RelationObserver,
 )
 from mongodb_interface_provides import MongoDbServer
-from builders import MongoBuilder, K8sBuilder
+from builders import MongoBuilder
 import logging
 
 logger = logging.getLogger()
@@ -45,10 +44,7 @@ class MongoDbCharm(CharmBase):
                 'mongodb-sidecar-image')
 
         self._pod = K8sPod(self._framework_wrapper.app_name)
-        self._pvc = K8sPvc(self._framework_wrapper.app_name)
         self._mongodb = MongoDbServer(self, "mongo")
-
-        self._k8s_builder = K8sBuilder(self._pvc)
 
         delegators = [
             (self.on.start, self.on_config_changed_delegator),
@@ -56,7 +52,6 @@ class MongoDbCharm(CharmBase):
             (self.on.config_changed, self.on_config_changed_delegator),
             (self.on.update_status, self.on_update_status_delegator),
             (self._mongodb.on.new_client, self.on_new_client_delegator),
-            (self.on.remove_pvc_action, self.on_remove_pvc_action_delegator),
         ]
         for delegator in delegators:
             self.framework.observe(delegator[0], delegator[1])
@@ -68,15 +63,6 @@ class MongoDbCharm(CharmBase):
             self._resources,
             self._pod,
             self._mongo_builder).handle(event)
-
-    def on_remove_pvc_action_delegator(self, event):
-        logger.info('on_remove_pvc_action_delegator({})'.format(event))
-        return RemovalObserver(
-            self._framework_wrapper,
-            self._resources,
-            self._pod,
-            self._pvc,
-            self._k8s_builder).handle(event)
 
     def on_new_client_delegator(self, event):
         logger.info('on_relation_changed_delegator({})'.format(event))

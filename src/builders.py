@@ -104,12 +104,3 @@ class MongoBuilder:
         if sidecar:
             spec['containers'].append(self.__make_sidecar_spec__())
         return spec
-
-
-class K8sBuilder:
-
-    def __init__(self, resource):
-        self._resource = resource
-
-    def demolish(self):
-        self._resource.delete()
